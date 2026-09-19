@@ -1,45 +1,42 @@
-import { useState } from "react";
-import { AuthService } from "../services/auth.service";
-import { useRouter } from "expo-router";
+import {useState} from "react";
+import {AuthService} from "@/app/src/auth/services/auth.service";
+import {useRouter} from "expo-router";
+import {useAuth} from "@/app/src/context/AuthContext";
 
-export function useLogin() {
-    const router = useRouter()
+export function useLogin(){
+    const router = useRouter();
+    const {saveSession} = useAuth();
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-      const [isLoading, setIsLoading] = useState(false)
-    const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false)
-
-    console.log("EMAIL VALUE", email);
-    console.log("PASSWORD VALUE", password);
+    const [isLoading, setIsLoading] = useState(false)
+    const [errorMessage, setErrorsMessage] = useState<string|null>(null)
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
-        setIsPasswordVisible((prev) => !prev)
+        setIsPasswordVisible((prev)=> !prev)
     }
 
-    const handleLogin = async()=>{
-        if (!email || !password) {
-            setErrorMessage("Please, complete all fields")
+    const handleLogin=async ()=>{
+        if(!email || !password){
+            setErrorsMessage("Please, complete all fields")
             return
         }
 
-        setErrorMessage(null)
+        setErrorsMessage(null)
         setIsLoading(true)
 
         try {
             const data = await AuthService.login(email, password)
-            console.log("TOKEN", data.token);
-            router.replace("/(protected)/dashboard")
-
+            console.log("TOKEN Bearer", data.token);
+            await saveSession(data.token,data.userResponse)
         } catch (error:any) {
-            setErrorMessage(error.message)
-        }finally{
+            setErrorsMessage(error.message)
+        }finally {
             setIsLoading(false)
         }
     }
 
-    
-    return{
+    return {
         email,
         password,
         setEmail,
@@ -48,8 +45,6 @@ export function useLogin() {
         errorMessage,
         isPasswordVisible,
         togglePasswordVisibility,
-        handleLogin
-        
+        handleLogin,
     }
-
 }

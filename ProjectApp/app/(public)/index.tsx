@@ -1,7 +1,10 @@
-import { useLogin } from '../src/Auth/viewmodels/use-login';
-import { useRouter } from 'expo-router';
-import { StyleSheet ,Text, View, KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Feather } from "@expo/vector-icons";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
+} from "react-native";
+import { useRouter } from "expo-router";
+import { useLogin } from "../src/auth/viewmodels/use-login";
 
 export default function LoginScreen() {
 
@@ -18,204 +21,194 @@ export default function LoginScreen() {
     handleLogin
   } = useLogin();
 
-  return(
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View style={styles.LogoContainer}>
-            <Feather name="shopping-bag" size={25} color="black" />
-          </View>
-          <Text style={styles.appNameLabel}>ShopEase</Text>
-          <Text style={styles.welcomeLabel}>Welcome Back! Please enter your credentials.</Text>
-        </View>
-        <View style={styles.card}>
-          {errorMessage &&(
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
+  return (
+      <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "android" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <View style={styles.logoContainer}>
+              <Feather name="shopping-bag" size={25} color="#fff"/>
             </View>
-          )}
-          <Text style={styles.label}>Email Address</Text>
-          <View style={styles.inputContainer}>
-            <Feather name="mail" size={20} color="gray" />
-            <TextInput style={styles.inputText} value={email} onChangeText={setEmail} autoCapitalize="none" placeholder="Enter your email address" keyboardType='email-address'/>
+            <Text style={styles.appNameLabel}>ShopEase</Text>
+            <Text style={styles.welcomeLabel}>Welcome back! Please enter your details</Text>
           </View>
-          <View style={styles.passwordRow}>
-            <Text style={styles.label}>Password</Text>
-              <TouchableOpacity>
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
-              </TouchableOpacity>
-          </View>
-            <View style={styles.inputContainer}>
-              <Feather name="lock" size={20} color="gray" />
-              <TextInput style={styles.inputPass} value={password} onChangeText={setPassword} autoCapitalize="none" placeholder="***********" secureTextEntry={!isPasswordVisible ?true:false}/>
-              <TouchableOpacity onPress={togglePasswordVisibility}>
-                <Feather name={isPasswordVisible ? "eye-off" : "eye"} size={20} color="gray" onPress={togglePasswordVisibility}/>
-              </TouchableOpacity>
-            </View>
-          {isLoading ?(
-            <ActivityIndicator size="large" color="#006C47"/>
-              ): (
-              <TouchableOpacity
-                style={styles.loginButton}
-                onPress={handleLogin}>
-                <Text style={styles.loginButtonText}>Log in</Text>
-              </TouchableOpacity>
+
+          {/* CARD */}
+          <View style={styles.card}>
+            {errorMessage && (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>{errorMessage}</Text>
+                </View>
             )}
-        </View>
-        <View style={styles.signUpRow}>
-          <Text style={styles.signUpText}>Does not have account? </Text>
-          <TouchableOpacity onPress={() => router.push('/register')}>
-            <Text style={styles.signUpLink}>Sign up for free</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  )
+
+            <Text style={styles.label}>Email Address</Text>
+            <View style={styles.inputContainer}>
+              <Feather name="mail" size={20} color="#9CA3AF"/>
+              <TextInput
+                  style={styles.input}
+                  placeholder={"name@gmail.com"}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
+              />
+            </View>
+            <View style={styles.passwordRow}>
+              <Text style={styles.label}>Password</Text>
+              <TouchableOpacity>
+                <Text style={styles.forgotPasswordLabel}>Forgot Password</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.inputContainer}>
+              <Feather name="lock" size={20} color="#9CA3AF"/>
+              <TextInput
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder={"*************"}
+                  autoCapitalize="none"
+                  secureTextEntry={!isPasswordVisible}
+              />
+              <TouchableOpacity onPress={togglePasswordVisibility}>
+                <Feather name={isPasswordVisible ? "eye" : "eye-off"} size={20} color="#9CA3AF"/>
+              </TouchableOpacity>
+            </View>
+            {isLoading ?(
+                <ActivityIndicator size="large" color="darkgreen"/>
+            ):( <TouchableOpacity
+                style={styles.buttonLogin}
+                onPress={handleLogin}
+            >
+              <Text style={styles.buttonLoginText}>Log in</Text>
+            </TouchableOpacity>)}
+
+          </View>
+
+          <View style={styles.signUpRow}>
+            <Text style={styles.singUpText}>Does not  have account?</Text>
+            <TouchableOpacity
+                onPress={()=> router.push("/(public)/register")}
+            >
+              <Text style={styles.singUpTextLink}>Sing up for free</Text>
+            </TouchableOpacity>
+
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+  );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-
-  scrollView: {
+  scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24
+    justifyContent:"center",
+    padding:24,
   },
-
-  header: {
-    alignItems: 'center',
+  header:{
+    alignItems:"center"
   },
-
-  LogoContainer: {
-    width: 60,
-    height: 60,
-    backgroundColor: 'lightgreen',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 20,
+  logoContainer:{
+    width:60,
+    height:60,
+    backgroundColor:"lightgreen",
+    justifyContent:"center",
+    alignItems:"center",
+    borderRadius:16
   },
-
-  appNameLabel: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
+  appNameLabel:{
+    fontSize:32,
+    fontWeight:"bold",
+    color:"darkgreen"
   },
-
-  welcomeLabel: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 24,
+  welcomeLabel:{
+    fontSize:15,
+    color:"#6B7280",
+    marginBottom:25
   },
-
-  card: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    padding: 24,
-    borderColor: 'gray',
-    borderRadius: 14,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  card:{
+    backgroundColor:"#fff",
+    borderWidth:1,
+    borderColor:"#F3F4F6",
+    borderRadius:14,
+    shadowColor:"#fff",
+    textShadowOffset:{width:0, height:2},
+    shadowOpacity:0.03,
+    shadowRadius:8,
+    padding:24,
+    elevation:2
   },
-
-  label: {
-    fontSize: 14,
-    color: 'black',
-    marginBottom: 8,
+  label:{
+    fontSize:14,
+    color:"#374151",
+    marginBottom:10
   },
-
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 50,
-    marginBottom: 16
+  inputContainer:{
+    flexDirection:"row",
+    alignItems:"center",
+    borderWidth:1,
+    borderColor:"#D1D5DB",
+    paddingHorizontal:12,
+    borderRadius:8,
+    marginBottom:15,
+    height:50,
   },
-    
-  inputText: {
-    flex: 1,
-    height: '100%',
-    marginLeft: 8,
-    fontSize: 14,
-    color: 'gray',
+  input:{
+    flex:1,
+    height:"100%",
+    marginLeft:8
   },
-
-  inputPass: {
-    flex: 1,
-    height: '100%',
-    marginLeft: 8,
-    fontSize: 14,
-    color: 'gray',
+  passwordRow:{
+    flexDirection:"row",
+    justifyContent:"space-between"
   },
-
-  forgotPassword: {
-    color: 'green',
-    fontSize: 14,
-    fontWeight: 'bold',
+  forgotPasswordLabel:{
+    color:"darkgreen",
+    fontWeight:"600"
   },
-
-  passwordRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  buttonLogin:{
+    backgroundColor:"darkgreen",
+    justifyContent:"center",
+    alignItems:"center",
+    height:50,
+    borderRadius:8,
   },
-
-  loginButton: {
-    backgroundColor: 'green',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 16,
+  buttonLoginText:{
+    color:"#fff",
+    fontSize:16,
+    fontWeight:"bold"
   },
-
-  loginButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+  signUpRow:{
+    flexDirection:"row",
+    justifyContent:"center",
+    marginTop:35
   },
-
-  signUpRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 16,
+  singUpText:{
+    fontSize:14,
+    color:"#6B7280"
   },
-
-  signUpText: {
-    color: 'gray',
-    fontSize: 14,
+  singUpTextLink:{
+    fontSize:14,
+    fontWeight:"bold",
+    color:"darkgreen",
   },
-
-  signUpLink: {
-    color: 'green',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-
   errorContainer:{
-        borderWidth:1,
-        padding:12,
-        borderRadius:8,
-        marginBottom:20,
-        backgroundColor:"#FEF2F2",
-        borderColor:"#FCA5A5",
-
-    },
-    errorText:{
-        fontSize:15,
-        textAlign:"center",
-        color:"#DC2626",
-        fontWeight:500
-    }
-})
+    borderWidth:1,
+    borderRadius: 8,
+    backgroundColor:"#FEE2E2",
+    borderColor:"#FCA5A5",
+    marginBottom:20,
+    padding: 12
+  },
+  errorText:{
+    fontSize:15,
+    textAlign:"center",
+    color:"#DC26260",
+    fontWeight:"500",
+  }
+});

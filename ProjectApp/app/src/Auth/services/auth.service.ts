@@ -1,28 +1,32 @@
-import axios from 'axios';
 import { AuthResponse } from "../models/auth.model";
-const API_URL ="https://api-ecommerce-5aby.onrender.com"
+import axios from "axios";
 
-export const AuthService= {
-    login:async(email:string,password:string):Promise<AuthResponse>=>{
+const API_URL = "https://api-ecommerce-5aby.onrender.com";
+
+export const AuthService = {
+    login: async (email: string, password: string): Promise<AuthResponse> => {
         try {
-            const response = await axios.post(`${API_URL}/auth/login`,{
+            const response = await axios.post(`${API_URL}/auth/login`, {
                 email,
                 password
-            })
-            return response.data
-        } catch (error:any) {
+            });
+
+            return response.data;
+        } catch (error: any) {
+            console.log("ERROR LOGIN COMPLETO:", error);
             if (axios.isAxiosError(error) && error.response) {
-                throw new Error(error.response.data?.menssge || "Error to login")
+                console.log("ERROR RESPONSE:", error.response.data);
+                throw new Error(error.response.data?.Message || "Error to login");
             }
-            throw new Error("Server Error")
+            throw new Error("Server error");
         }
     },
-    register: async(
-        name:string,
-        lastname:string,
-        phone:string,
-        email:string,
-        password:string
+    register:async(
+        name: string,
+        lastname: string,
+        phone: string,
+        email: string,
+        password: string
     )=>{
         try {
             const response = await axios.post(`${API_URL}/auth/register`, {
@@ -32,15 +36,13 @@ export const AuthService= {
                 email,
                 password
             })
-
             console.log(response.data);
-
+            return response.data;
         } catch (error:any) {
             if (axios.isAxiosError(error) && error.response) {
-                throw new Error(error.response.data?.menssge || "Error to login")
+                throw new Error(error.response.data?.Message || "Error to login");
             }
-            throw new Error("Server Error")
+            throw new Error("Server error");
         }
-        
     }
-}
+};

@@ -1,9 +1,8 @@
-import { useRouter } from "expo-router";
-import { useState } from "react"
-import { AuthService } from "../services/auth.service";
-// Recuerda importar AuthService si no lo tienes importado aquí
+import {useState} from "react";
+import {useRouter} from "expo-router";
+import {AuthService} from "@/app/src/auth/services/auth.service";
 
-export function useRegister() {
+export function useRegister(){
     const [fullName, setFullName] = useState("")
     const [lastName, setLastName] = useState("")
     const [phone, setPhone] = useState("")
@@ -15,43 +14,45 @@ export function useRegister() {
     const router = useRouter()
 
     const handleRegister = async () => {
-        if (!fullName || !lastName || !phone || !email || !password || !confirmPassword) {
+        if(!fullName || !lastName || !phone || !email || !password || !confirmPassword){
             setErrorMessage("All fields are required")
             return
         }
 
-        if (password !== confirmPassword) {
-            setErrorMessage("The password is not the match")
+        if (password !== confirmPassword){
+            setErrorMessage("The password is not match")
             return
         }
 
-        setErrorMessage(null)
+        if (email )
+
+            setErrorMessage(null)
         setIsLoading(true)
 
         try {
+            const response = await AuthService.register(fullName, lastName, phone, email, password)
             router.replace("/(public)")
         } catch (error:any) {
             setErrorMessage(error.message)
-        } finally {
+        }finally{
             setIsLoading(false)
         }
     }
-
     return {
         fullName,
         lastName,
-        phone,
-        email,
         password,
         confirmPassword,
+        email,
+        phone,
         handleRegister,
         setFullName,
         setLastName,
-        setPhone,
-        setEmail,
         setPassword,
         setConfirmPassword,
+        setEmail,
+        setPhone,
         errorMessage,
-        isLoading
+        isLoading,
     }
 }
