@@ -12,10 +12,18 @@ export function useDrawer(){
         version:"v4.4.4"
     })
 
+    // const [isInventoryExpanded, setInventoryExpanded] = useState(false)
+
     const navigationOptions:DrawerItemOption[]=[
         {name:"dashboard",label:"Dashboard",icon:"grid"},
         {name:"orders",label:"Orders",icon:"package"},
-        {name:"inventory",label:"Inventory",icon:"archive"},
+        {
+            name:"inventory-group",label:"Inventory",icon:"archive",
+            subitems:[
+                {name:"create-category",label:"Categories",icon:"folder"},
+                {name:"create-product",label:"Products",icon:"file-text"},
+            ]
+        }
     ]
 
     return {
