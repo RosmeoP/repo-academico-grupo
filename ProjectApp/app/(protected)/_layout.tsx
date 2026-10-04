@@ -42,7 +42,10 @@ export default function ProtectedLayout(){
                                 return (
                                     <TouchableOpacity
                                      style={[styles.menuItemList, isSelected && styles.menuItemSelected]}
-                                     key={option.name}>
+                                     key={option.name}
+                                     onPress={()=>{
+                                        router.push(`/(protected)/${option.name}` as any)
+                                     }}>
 
                                         <Feather 
                                             name = {option.icon as any}
