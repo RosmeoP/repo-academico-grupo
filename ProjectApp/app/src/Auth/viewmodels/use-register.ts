@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {useRouter} from "expo-router";
-import {AuthService} from "@/app/src/auth/services/auth.service";
+import {AuthService} from "@/app/src/Auth/services/auth.service";
 
 export function useRegister(){
     const [fullName, setFullName] = useState("")
