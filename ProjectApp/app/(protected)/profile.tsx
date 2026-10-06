@@ -15,7 +15,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AuthService } from "../src/Auth/services/auth.service";
+import { AuthService } from "../src/auth/services/auth.service";
 
 export default function ProfileScreen() {
   const router = useRouter();

@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useLogin } from "../src/Auth/viewmodels/use-login";
+import { useLogin } from "../src/auth/viewmodels/use-login";
 
 export default function LoginScreen() {
 

@@ -14,8 +14,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-                                                                          children,
-                                                                      }) => {
+        children,
+    }) => {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserResponse | null>(null);
     const [isLoadingSession, setIsLoadingSession] = useState(true);

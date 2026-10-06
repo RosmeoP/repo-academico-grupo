@@ -3,9 +3,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-
 
 export default function CreateProductScreen() {
   const [description, setDescription] = useState("");

@@ -1,6 +1,6 @@
 import {useRouter} from "expo-router";
 import {useState} from "react";
-import {AdminProfile, DrawerItemOption} from "@/app/src/Admin/Models/drawer.model";
+import {AdminProfile, DrawerItemOption} from "@/app/src/admin/models/drawer.model";
 
 export function useDrawer(){
     const router = useRouter()
@@ -20,7 +20,7 @@ export function useDrawer(){
         {
             name:"inventory-group",label:"Inventory",icon:"archive",
             subitems:[
-                {name:"create-category",label:"Categories",icon:"folder"},
+                {name:"inventory",label:"Categories",icon:"folder"},
                 {name:"create-product",label:"Products",icon:"file-text"},
             ]
         }

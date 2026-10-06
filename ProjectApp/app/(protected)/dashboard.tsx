@@ -3,7 +3,7 @@ import { DrawerActions } from "@react-navigation/native";
 import Drawer from "expo-router/drawer";
 import {Dimensions, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDrawer } from "../src/Admin/viewmodels/use-drawer";
+import { useDrawer } from "../src/admin/viewmodels/use-drawer";
 import { useState, useMemo } from "react";
 import { useNavigation, useRouter } from "expo-router";
 
