@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductService } from "../services/product.service";
+import { CategoryResponse, CategoryService } from "../../categories/services/category.service";
 import { Alert } from "react-native";
 
 export function useCreateProduct() {
@@ -19,10 +20,41 @@ export function useCreateProduct() {
     const [isLoadingProduct, setIsLoadingProduct] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // Estados para selector de categorías
+    const [categories, setCategories] = useState<CategoryResponse[]>([]);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+    const [isCategoriesShowModal, setIsCategoriesShowModal] = useState(false);
+    const [selectedCategoryName, setSelectedCategoryName] = useState("");
+
+    const fetchCategories = async () => {
+        if (!token) return;
+        try {
+            setIsLoadingCategories(true);
+            const data = await CategoryService.getCategories(token);
+            setCategories(data);
+        } catch (error: any) {
+            console.log("Error al cargar las categorías:", error?.message);
+        } finally {
+            setIsLoadingCategories(false);
+        }
+    };
+
+    useEffect(() => {
+        if (token) {
+            fetchCategories();
+        }
+    }, [token]);
+
     const submitProduct = async () => {
         if (!name.trim() || !sku.trim() || !regularPrice.trim() || !initialStock.trim()) {
             setErrorMessage("Por favor completa los campos obligatorios");
             Alert.alert("Error", "Por favor completa los campos obligatorios");
+            return;
+        }
+
+        if (!categoryId) {
+            setErrorMessage("Por favor selecciona una categoría");
+            Alert.alert("Error", "Por favor selecciona una categoría");
             return;
         }
 
@@ -39,7 +71,7 @@ export function useCreateProduct() {
             await ProductService.createProduct(
                 {
                     name: name.trim(),
-                    categoryId: categoryId || 1,
+                    categoryId: Number(categoryId),
                     sku: sku.trim(),
                     description: description.trim(),
                     regularPrice: parseFloat(regularPrice),
@@ -84,5 +116,12 @@ export function useCreateProduct() {
         isLoadingProduct,
         errorMessage,
         submitProduct,
+        categories,
+        isLoadingCategories,
+        isCategoriesShowModal,
+        setIsCategoriesShowModal,
+        selectedCategoryName,
+        setSelectedCategoryName,
+        fetchCategories,
     };
 }

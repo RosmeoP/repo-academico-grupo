@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, TextInput, Text, View, TouchableOpacity, StyleSheet, Platform, ScrollView, ActivityIndicator } from "react-native";
+import { KeyboardAvoidingView, TextInput, Text, View, TouchableOpacity, StyleSheet, Platform, ScrollView, ActivityIndicator, Modal, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -28,6 +28,12 @@ export default function CreateProductScreen() {
     isLoadingProduct,
     errorMessage,
     submitProduct,
+    categories,
+    isLoadingCategories,
+    isCategoriesShowModal,
+    setIsCategoriesShowModal,
+    selectedCategoryName,
+    setSelectedCategoryName,
   } = useCreateProduct();
 
   return (
@@ -78,11 +84,17 @@ export default function CreateProductScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>categoria</Text>
-              <TouchableOpacity style={styles.selectInput}>
-                <Text>seleciona la categoria</Text>
+              <TouchableOpacity
+                style={styles.selectInput}
+                onPress={() => setIsCategoriesShowModal(true)}
+              >
+                <Text style={selectedCategoryName ? styles.selectInputTextSelected : styles.selectInputPlaceholder}>
+                  {selectedCategoryName || "seleciona la categoria"}
+                </Text>
                 <Feather
                   name="chevron-down"
                   size={20}
+                  color="#6B7280"
                 />
               </TouchableOpacity>
             </View>
@@ -217,6 +229,62 @@ export default function CreateProductScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Modal Selector de Categorías */}
+      <Modal
+        visible={isCategoriesShowModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsCategoriesShowModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Seleccionar categoría</Text>
+              <TouchableOpacity onPress={() => setIsCategoriesShowModal(false)}>
+                <Feather name="x" size={22} color="#374151" />
+              </TouchableOpacity>
+            </View>
+
+            {isLoadingCategories ? (
+              <ActivityIndicator size="large" color="#006C47" style={{ marginVertical: 20 }} />
+            ) : (
+              <FlatList
+                data={categories}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => {
+                  const isSelected = item.id === categoryId;
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.categoryOption,
+                        isSelected && styles.categoryOptionSelected,
+                      ]}
+                      onPress={() => {
+                        setCategoryId(item.id);
+                        setSelectedCategoryName(item.name);
+                        setIsCategoriesShowModal(false);
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.categoryOptionText,
+                          isSelected && styles.categoryOptionTextSelected,
+                        ]}
+                      >
+                        {item.name}
+                      </Text>
+                      {isSelected && (
+                        <Feather name="check" size={18} color="#006C47" />
+                      )}
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -384,5 +452,59 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 15,
     fontWeight: "bold",
+  },
+  selectInputPlaceholder: {
+    color: "#9CA3AF",
+    fontSize: 14,
+  },
+  selectInputTextSelected: {
+    color: "#111827",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    maxHeight: "60%",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#111827",
+  },
+  categoryOption: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  categoryOptionSelected: {
+    backgroundColor: "#edfdf5",
+  },
+  categoryOptionText: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  categoryOptionTextSelected: {
+    color: "#006C47",
+    fontWeight: "600",
   },
 });
