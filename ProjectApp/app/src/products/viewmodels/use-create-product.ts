@@ -67,6 +67,8 @@ export function useCreateProduct() {
         setErrorMessage(null);
         setIsLoadingProduct(true);
 
+        // console.log("PRODUCT ID", categoryId)
+
         try {
             await ProductService.createProduct(
                 {
