@@ -1,11 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "@react-navigation/native";
 import Drawer from "expo-router/drawer";
-import {Dimensions, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDrawer } from "../src/admin/viewmodels/use-drawer";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigation, useRouter } from "expo-router";
+import { useAuth } from "../src/context/AuthContext";
+import { CategoryService } from "../src/categories/services/category.service";
 
 const {width} = Dimensions.get("window");
 const CARD_WIDTH = (width-44)/2 //(Ancho total - margenes laterales)/2
@@ -70,8 +72,28 @@ export default function DashboardScreen() {
     const navigation = useNavigation();
     const router = useRouter();
     const { profile } = useDrawer();
+    const {token} = useAuth();
     const [selectedCategory, setSelectedCategory] = useState("All Products");
     const [searchQuery, setSearchQuery] = useState("");
+    const [categories, setCategories] = useState<string[]>(["All categories"])
+    //const [selectedCategory, setSelectedCategory] = useState{"All categories"}
+    const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+    useEffect(() =>{
+        const fetchCategories = async()=>{
+            if(!token)  return
+            setIsLoadingCategories(true)
+            try {
+                const data = await CategoryService.getCategory(token)
+                const categoryName = Array.from(new Set(data.map((c)=>c.name)))
+                setCategories(["All categories",...categoryName])
+            } catch (error) {
+                console.log("Error to get categories from screen", error)
+            } finally {
+                setIsLoadingCategories(false)
+            }
+        }
+        fetchCategories()
+    }, [token])
 
     const openMenu = () => {
         navigation.dispatch(DrawerActions.openDrawer());
@@ -123,32 +145,35 @@ export default function DashboardScreen() {
 
             {/**CATEGORIES**/}
             <View style={styles.categoriesWrapper}>
-                <FlatList
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    data={CATEGORIES}
-                    keyExtractor={(item) => item}
-                    contentContainerStyle={styles.categoriesList}
-                    renderItem={({ item }) => {
-                        const isSelected = item === selectedCategory;
-                        return (
+                {isLoadingCategories ?(
+                    <ActivityIndicator color="#005C3A" size="small" />
+                    ):(
+                    <FlatList
+                        data={categories}
+                        horizontal
+                        keyExtractor={(item) => item}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.categoriesList}
+                        renderItem={({ item }) => (
                             <TouchableOpacity
-                                onPress={() => setSelectedCategory(item)}
                                 style={[
                                     styles.categoryItem,
-                                    isSelected && styles.categoryItemSelected
+                                    selectedCategory === item && styles.categoryItemSelected,
                                 ]}
+                                onPress={() => setSelectedCategory(item)}
                             >
-                                <Text style={[
-                                    styles.categoryText,
-                                    isSelected && styles.categoryTextSelected
-                                ]}>
+                                <Text
+                                    style={[
+                                        styles.categoryText,
+                                        selectedCategory === item && styles.categoryTextSelected,
+                                    ]}
+                                >
                                     {item}
                                 </Text>
                             </TouchableOpacity>
-                        );
-                    }}
-                />
+                        )}
+                    />
+                )}
             </View>
             {/**PRODUCTS CARD**/}
             <FlatList

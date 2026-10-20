@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {AuthService} from "@/app/src/auth/services/auth.service";
+import {AuthService} from "@/app/src/Auth/services/auth.service";
 import {useRouter} from "expo-router";
 import {useAuth} from "@/app/src/context/AuthContext";
 

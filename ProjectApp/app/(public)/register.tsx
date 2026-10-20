@@ -11,7 +11,7 @@ import {
     View
 } from "react-native";
 import {Feather} from "@expo/vector-icons";
-import {useRegister} from "@/app/src/auth/viewmodels/use-register";
+import {useRegister} from "@/app/src/Auth/viewmodels/use-register";
 
 
 export default function RegisterScreen(){

@@ -1,6 +1,6 @@
 import {useRouter} from "expo-router";
 import {useState} from "react";
-import {AdminProfile, DrawerItemOption} from "@/app/src/admin/models/drawer.model";
+import {AdminProfile, DrawerItemOption} from "../Models/drawer.model";
 
 export function useDrawer(){
     const router = useRouter()
