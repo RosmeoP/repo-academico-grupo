@@ -1,7 +1,6 @@
-import { AuthResponse, UserResponse } from "../models/auth.model";
-import axios from "axios";
-
-const API_URL = "https://api-ecommerce-5aby.onrender.com";
+import { AuthResponse } from "../models/auth.model";
+import axios, { isAxiosError } from "axios";
+import { API_URL } from "@/api/apiClient";
 
 export const AuthService = {
     login: async (email: string, password: string): Promise<AuthResponse> => {
@@ -14,20 +13,20 @@ export const AuthService = {
             return response.data;
         } catch (error: any) {
             console.log("ERROR LOGIN COMPLETO:", error);
-            if (axios.isAxiosError(error) && error.response) {
+            if (isAxiosError(error) && error.response) {
                 console.log("ERROR RESPONSE:", error.response.data);
-                throw new Error(error.response.data?.Message || "Error to login");
+                throw new Error(error.response.data?.Message || error.response.data?.message || "Error to login");
             }
             throw new Error("Server error");
         }
     },
-    register:async(
+    register: async (
         name: string,
         lastname: string,
         phone: string,
         email: string,
         password: string
-    )=>{
+    ) => {
         try {
             const response = await axios.post(`${API_URL}/auth/register`, {
                 name,
@@ -35,12 +34,12 @@ export const AuthService = {
                 phone,
                 email,
                 password
-            })
+            });
             console.log(response.data);
             return response.data;
-        } catch (error:any) {
-            if (axios.isAxiosError(error) && error.response) {
-                throw new Error(error.response.data?.Message || "Error to login");
+        } catch (error: any) {
+            if (isAxiosError(error) && error.response) {
+                throw new Error(error.response.data?.Message || error.response.data?.message || "Error to register");
             }
             throw new Error("Server error");
         }
@@ -51,14 +50,18 @@ export const AuthService = {
         lastname: string,
         phone: string,
         token: string,
-    ):Promise<UserResponse> => {
+        imagen?: string,
+    ): Promise<any> => {
         console.log("TOKEN", token);
         try {
             const formData = new FormData();
             formData.append("name", name);
             formData.append("lastname", lastname);
             formData.append("phone", phone);
-            // console.log("TOKEN", token);
+            if (imagen) {
+                formData.append("imagen", imagen);
+                formData.append("image", imagen);
+            }
 
             const authTokenHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 
@@ -66,16 +69,15 @@ export const AuthService = {
                 headers: {
                     Authorization: authTokenHeader,
                     "Content-Type": "multipart/form-data"
-                    
                 },
             });
             return response.data;
         } catch (error: any) {
-            // console.log("ERROR UPDATE USER:", error);
-            if (axios.isAxiosError(error) && error.response) {
-                throw new Error(error. response.data?.message || "Error to login")
-         }
-         throw new Error("Server error");
+            console.log("ERROR UPDATE USER:", error);
+            if (isAxiosError(error) && error.response) {
+                throw new Error(error.response.data?.message || error.response.data?.Message || "Error to update user");
+            }
+            throw new Error("Server error");
         }
     }
-}
+};

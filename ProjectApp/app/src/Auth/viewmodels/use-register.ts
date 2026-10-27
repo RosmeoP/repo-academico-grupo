@@ -1,8 +1,8 @@
-import {useState} from "react";
-import {useRouter} from "expo-router";
-import {AuthService} from "@/app/src/Auth/services/auth.service";
+import { AuthService } from "@/app/src/Auth/services/auth.service";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 
-export function useRegister(){
+export function useRegister() {
     const [fullName, setFullName] = useState("")
     const [lastName, setLastName] = useState("")
     const [phone, setPhone] = useState("")
@@ -14,27 +14,27 @@ export function useRegister(){
     const router = useRouter()
 
     const handleRegister = async () => {
-        if(!fullName || !lastName || !phone || !email || !password || !confirmPassword){
+        if (!fullName || !lastName || !phone || !email || !password || !confirmPassword) {
             setErrorMessage("All fields are required")
             return
         }
 
-        if (password !== confirmPassword){
+        if (password !== confirmPassword) {
             setErrorMessage("The password is not match")
             return
         }
 
-        if (email )
+        if (email)
 
             setErrorMessage(null)
         setIsLoading(true)
 
         try {
-            const response = await AuthService.register(fullName, lastName, phone, email, password)
+            await AuthService.register(fullName, lastName, phone, email, password)
             router.replace("/(public)")
-        } catch (error:any) {
+        } catch (error: any) {
             setErrorMessage(error.message)
-        }finally{
+        } finally {
             setIsLoading(false)
         }
     }
