@@ -25,48 +25,40 @@ export default function InventoryScreen() {
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const notify = (title: string, message: string, onOk?: () => void) => {
-    if (Platform.OS === "web") {
-      window.alert(`${title}: ${message}`);
-      if (onOk) onOk();
-    } else {
-      Alert.alert(
-        title,
-        message,
-        onOk ? [{ text: "Aceptar", onPress: onOk }] : undefined
-      );
-    }
-  };
-
   const handleSaveCategory = async () => {
     if (!name.trim()) {
-      notify(
+      Alert.alert(
         "Campo requerido",
-        "Por favor ingrese el nombre de la categoría"
+        "Por favor ingrese el nombre de la categoria",
       );
       return;
     }
     if (!description.trim()) {
-      notify("Campo requerido", "Por favor ingrese la descripción");
+      Alert.alert("Campo requerido", "Por favor ingrese la descripcion");
       return;
     }
     if (!token) {
-      notify("Error de sesión", "No se encontró el token de autenticación.");
+      Alert.alert("Error de sesion", "No se encontro el token.");
       return;
     }
     setIsLoading(true);
     try {
-      const newCategory = await CategoryService.createCategory(name, description, token);
+      const newCategory = await CategoryService.createCategory(name, description, token,);
 
-      notify("¡Categoría Creada!", `La categoría "${newCategory.name}" fue registrada exitosamente.`, () => {
-        setName("");
-        setDescription("");
-        router.replace("/(protected)/dashboard");
-      });
-    } catch (error: any) {
-      notify("Error", error.message || "No se pudo guardar la categoría");
+      Alert.alert("!Categoria Creada", `La Categoria ${newCategory.name}`,[
+        {
+          text: "Aceptar",
+          onPress:()=>{
+            setName("")
+            setDescription("")
+            router.replace("/(protected)/dashboard")
+          }
+        }
+      ]);
+    } catch (error:any) {
+      Alert.alert("Error", error.message || "No se pudo guardar la categoria")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   };
 

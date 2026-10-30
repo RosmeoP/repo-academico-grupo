@@ -1,9 +1,9 @@
 import { useRouter } from "expo-router";
-import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useState, useEffect } from "react";
 import { ProductService } from "../services/product.service";
 import { CategoryResponse, CategoryService } from "../../categories/services/category.service";
-import { Alert, Platform } from "react-native";
+import { Alert } from "react-native";
 
 export function useCreateProduct() {
     const router = useRouter();
@@ -25,79 +25,52 @@ export function useCreateProduct() {
     const [isLoadingCategories, setIsLoadingCategories] = useState(false);
     const [isCategoriesShowModal, setIsCategoriesShowModal] = useState(false);
     const [selectedCategoryName, setSelectedCategoryName] = useState("");
-    const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-    const fetchCategories = useCallback(async () => {
+    const fetchCategories = async () => {
         if (!token) return;
         try {
             setIsLoadingCategories(true);
-            setCategoriesError(null);
             const data = await CategoryService.getCategories(token);
             setCategories(data);
         } catch (error: any) {
             console.log("Error al cargar las categorías:", error?.message);
-            setCategoriesError("No se pudieron cargar las categorías (error del servidor).");
         } finally {
             setIsLoadingCategories(false);
         }
-    }, [token]);
+    };
 
     useEffect(() => {
         if (token) {
             fetchCategories();
         }
-    }, [token, fetchCategories]);
-
-    const notify = (title: string, message: string, onOk?: () => void) => {
-        if (Platform.OS === "web") {
-            window.alert(`${title}: ${message}`);
-            if (onOk) onOk();
-        } else {
-            Alert.alert(
-                title,
-                message,
-                onOk ? [{ text: "OK", onPress: onOk }] : undefined
-            );
-        }
-    };
+    }, [token]);
 
     const submitProduct = async () => {
-        console.log("--> submitProduct ejecutado con:", {
-            name,
-            categoryId,
-            sku,
-            description,
-            regularPrice,
-            initialStock,
-            hasToken: !!token,
-        });
-
-        if (!name.trim() || !sku.trim() || !description.trim() || !regularPrice.trim() || !initialStock.trim()) {
-            const msg = "Por favor completa todos los campos obligatorios (Nombre, SKU, Descripción, Precios y Stock)";
-            setErrorMessage(msg);
-            notify("Error", msg);
+        if (!name.trim() || !sku.trim() || !regularPrice.trim() || !initialStock.trim()) {
+            setErrorMessage("Por favor completa los campos obligatorios");
+            Alert.alert("Error", "Por favor completa los campos obligatorios");
             return;
         }
 
         if (!categoryId) {
-            const msg = "Por favor selecciona una categoría";
-            setErrorMessage(msg);
-            notify("Error", msg);
+            setErrorMessage("Por favor selecciona una categoría");
+            Alert.alert("Error", "Por favor selecciona una categoría");
             return;
         }
 
         if (!token) {
-            const msg = "Sesión no válida o expirada. Inicia sesión nuevamente.";
-            setErrorMessage(msg);
-            notify("Error", msg);
+            setErrorMessage("Sesion no valida");
+            Alert.alert("Error", "Sesion no valida");
             return;
         }
 
         setErrorMessage(null);
         setIsLoadingProduct(true);
 
+        // console.log("PRODUCT ID", categoryId)
+
         try {
-            const createdProduct = await ProductService.createProduct(
+            await ProductService.createProduct(
                 {
                     name: name.trim(),
                     categoryId: Number(categoryId),
@@ -108,20 +81,18 @@ export function useCreateProduct() {
                     initialStock: parseInt(initialStock, 10),
                     minStockAlert: minStockAlert ? parseInt(minStockAlert, 10) : 0,
                 },
-                token,
-                selectedCategoryName
+                token
             );
 
-            console.log("RESPUESTA CREAR PRODUCTO (API):", JSON.stringify(createdProduct, null, 2));
-
-            notify("Éxito", "Producto creado correctamente", () => {
-                router.replace("/(protected)/dashboard");
-            });
+            Alert.alert("Éxito", "Producto creado correctamente", [
+                {
+                    text: "OK",
+                    onPress: () => router.replace("/(protected)/dashboard"),
+                },
+            ]);
         } catch (error: any) {
-            console.error("Error al crear producto en backend:", error);
-            const msg = error.message || "Error al crear el producto";
-            setErrorMessage(msg);
-            notify("Error", msg);
+            setErrorMessage(error.message);
+            Alert.alert("Error", error.message || "Error al crear el producto");
         } finally {
             setIsLoadingProduct(false);
         }
@@ -154,6 +125,5 @@ export function useCreateProduct() {
         selectedCategoryName,
         setSelectedCategoryName,
         fetchCategories,
-        categoriesError,
     };
 }

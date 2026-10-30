@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Drawer } from "expo-router/drawer";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
-import { useDrawer } from "../src/Admin/viewmodels/use-drawer";
+import { useDrawer } from "../src/admin/viewmodels/use-drawer";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
@@ -62,7 +62,7 @@ function DrawerContent(props: any) {
                 <Text style={styles.menuText}>{option.label}</Text>
                 {hasSubitems && (
                   <Feather
-                    name={isInventoryExpanded ? "chevron-down" : "chevron-right"}
+                    name={isInventoryExpanded ? "chevron-up" : "chevron-down"}
                     size={16}
                     color={isSelected ? "#FFF" : "#374151"}
                     style={{ marginLeft: "auto" }}

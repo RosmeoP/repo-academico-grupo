@@ -1,9 +1,9 @@
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFocusEffect, useRouter } from "expo-router";
-import Drawer from "expo-router/drawer";
-import { useCallback } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, TextInput, Text, View, TouchableOpacity, StyleSheet, Platform, ScrollView, ActivityIndicator, Modal, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import Drawer from "expo-router/drawer";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCreateProduct } from "../src/products/viewmodels/use-create-product";
 
 export default function CreateProductScreen() {
@@ -34,15 +34,7 @@ export default function CreateProductScreen() {
     setIsCategoriesShowModal,
     selectedCategoryName,
     setSelectedCategoryName,
-    categoriesError,
-    fetchCategories,
   } = useCreateProduct();
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories();
-    }, [fetchCategories])
-  );
 
   return (
     <SafeAreaView
@@ -67,12 +59,6 @@ export default function CreateProductScreen() {
         </View>
 
         <ScrollView style={styles.scrollContent}>
-          {errorMessage && (
-            <View style={styles.errorBanner}>
-              <Feather name="alert-circle" size={18} color="#B91C1C" style={{ marginRight: 8 }} />
-              <Text style={styles.errorBannerText}>{errorMessage}</Text>
-            </View>
-          )}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Feather
@@ -100,10 +86,7 @@ export default function CreateProductScreen() {
               <Text style={styles.inputLabel}>categoria</Text>
               <TouchableOpacity
                 style={styles.selectInput}
-                onPress={() => {
-                  fetchCategories();
-                  setIsCategoriesShowModal(true);
-                }}
+                onPress={() => setIsCategoriesShowModal(true)}
               >
                 <Text style={selectedCategoryName ? styles.selectInputTextSelected : styles.selectInputPlaceholder}>
                   {selectedCategoryName || "seleciona la categoria"}
@@ -203,6 +186,7 @@ export default function CreateProductScreen() {
                 <View style={styles.col}>
                   <Text style={styles.inputLabel}>Stock Inicial</Text>
                   <View style={styles.inputPriceWrapper}>
+                    <Text style={{ marginRight: 6 }}>$</Text>
                     <TextInput
                       placeholder="50"
                       keyboardType="numeric"
@@ -215,6 +199,7 @@ export default function CreateProductScreen() {
                 <View style={styles.col}>
                   <Text style={styles.inputLabel}>Stock minimo </Text>
                   <View style={styles.inputPriceWrapper}>
+                    <Text style={{ marginRight: 6 }}>$</Text>
                     <TextInput
                       placeholder="5"
                       keyboardType="numeric"
@@ -263,23 +248,6 @@ export default function CreateProductScreen() {
 
             {isLoadingCategories ? (
               <ActivityIndicator size="large" color="#006C47" style={{ marginVertical: 20 }} />
-            ) : categoriesError ? (
-              <View style={{ alignItems: "center", paddingVertical: 24 }}>
-                <Feather name="alert-circle" size={32} color="#B91C1C" />
-                <Text style={{ color: "#B91C1C", marginTop: 8, textAlign: "center" }}>
-                  {categoriesError}
-                </Text>
-                <TouchableOpacity
-                  style={[styles.btnSave, { paddingHorizontal: 24, marginTop: 16, marginBottom: 0 }]}
-                  onPress={fetchCategories}
-                >
-                  <Text style={styles.btnSaveText}>Reintentar</Text>
-                </TouchableOpacity>
-              </View>
-            ) : categories.length === 0 ? (
-              <Text style={{ textAlign: "center", color: "#6B7280", paddingVertical: 24 }}>
-                No hay categorías disponibles.
-              </Text>
             ) : (
               <FlatList
                 data={categories}
@@ -538,21 +506,5 @@ const styles = StyleSheet.create({
   categoryOptionTextSelected: {
     color: "#006C47",
     fontWeight: "600",
-  },
-  errorBanner: {
-    backgroundColor: "#FEE2E2",
-    borderWidth: 1,
-    borderColor: "#F87171",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  errorBannerText: {
-    color: "#B91C1C",
-    fontSize: 13,
-    fontWeight: "600",
-    flex: 1,
   },
 });

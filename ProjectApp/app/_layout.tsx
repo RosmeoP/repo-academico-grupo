@@ -31,7 +31,7 @@ function NavigationGuard() {
                 router.replace('/(public)');
             }
         }
-    }, [token, isLoadingSession, segments, router]);
+    }, [token, isLoadingSession, segments]);
 
     if (isLoadingSession) {
         return (

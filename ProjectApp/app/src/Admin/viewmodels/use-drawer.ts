@@ -1,45 +1,33 @@
-import { useAuth } from "@/app/src/context/AuthContext";
-import { useMemo } from "react";
-import { AdminProfile, DrawerItemOption } from "../Models/drawer.model";
+import {useRouter} from "expo-router";
+import {useState} from "react";
+import {AdminProfile, DrawerItemOption} from "../Models/drawer.model";
 
-export function useDrawer() {
-    const { user } = useAuth();
+export function useDrawer(){
+    const router = useRouter()
 
-    const profile: AdminProfile = useMemo(() => {
-        const fullName = [user?.name, user?.lastName].filter(Boolean).join(" ").trim() || "Usuario";
-        const role =
-            user?.role && user.role.length > 0
-                ? user.role.map((r) => r.name).join(", ")
-                : user?.email || "Usuario";
-        const avatarUrl =
-            user?.imagen && user.imagen.trim().length > 0
-                ? user.imagen.trim()
-                : `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=005C3A&color=fff&size=200`;
+    const [profile]=useState<AdminProfile>({
+        name:"Admin User",
+        role:"System managment",
+        avatarUrl:"https://i.pinimg.com/736x/f5/1d/1b/f51d1bfedfc41d5f926f8290d66aedd5.jpg",
+        version:"v4.4.4"
+    })
 
-        return {
-            name: fullName,
-            role,
-            avatarUrl,
-            version: "v1.0.0",
-        };
-    }, [user]);
+    // const [isInventoryExpanded, setInventoryExpanded] = useState(false)
 
-    const navigationOptions: DrawerItemOption[] = [
-        { name: "dashboard", label: "Dashboard", icon: "grid" },
-        { name: "orders", label: "Orders", icon: "package" },
+    const navigationOptions:DrawerItemOption[]=[
+        {name:"dashboard",label:"Dashboard",icon:"grid"},
+        {name:"orders",label:"Orders",icon:"package"},
         {
-            name: "inventory-group",
-            label: "Inventory",
-            icon: "archive",
-            subitems: [
-                { name: "inventory", label: "Categories", icon: "folder" },
-                { name: "create-product", label: "Products", icon: "file-text" },
-            ],
-        },
-    ];
+            name:"inventory-group",label:"Inventory",icon:"archive",
+            subitems:[
+                {name:"inventory",label:"Categories",icon:"folder"},
+                {name:"create-product",label:"Products",icon:"file-text"},
+            ]
+        }
+    ]
 
     return {
         profile,
-        navigationOptions,
-    };
+        navigationOptions
+    }
 }

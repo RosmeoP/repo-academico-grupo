@@ -1,24 +1,24 @@
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions } from "@react-navigation/native";
-import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 import Drawer from "expo-router/drawer";
-import { useCallback, useMemo, useState } from "react";
-import { ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {ActivityIndicator, Dimensions, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useDrawer } from "../src/Admin/viewmodels/use-drawer";
-import { CategoryService } from "../src/categories/services/category.service";
+import { useDrawer } from "../src/admin/viewmodels/use-drawer";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigation, useRouter } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
+import { CategoryService } from "../src/categories/services/category.service";
 
-const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 44) / 2 //(Ancho total - margenes laterales)/2
+const {width} = Dimensions.get("window");
+const CARD_WIDTH = (width-44)/2 //(Ancho total - margenes laterales)/2
 interface Product {
-    id: string
-    title: string
-    description: string
-    price: number
-    image: string
-    isNew?: boolean
-    category: string
+    id:string
+    title:string
+    description:string
+    price:number
+    image:string
+    isNew?:boolean
+    category:string
 }
 const DEFAULT_CATEGORIES = [
     "All categories",
@@ -98,36 +98,35 @@ const MOCK_PRODUCTS: Product[] = [
     }
 ];
 
+
+
 export default function DashboardScreen() {
     const navigation = useNavigation();
     const router = useRouter();
     const { profile } = useDrawer();
-    const { token } = useAuth();
+    const {token} = useAuth();
     const [selectedCategory, setSelectedCategory] = useState("All categories");
     const [searchQuery, setSearchQuery] = useState("");
     const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
     const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
-    const fetchCategories = useCallback(async () => {
-        if (!token) return;
-        setIsLoadingCategories(true);
-        try {
-            const data = await CategoryService.getCategory(token);
-            const categoryNames = Array.from(new Set(data.map((c) => c.name).filter(Boolean)));
-            const uniqueCategories = Array.from(new Set(["All categories", ...categoryNames, ...DEFAULT_CATEGORIES]));
-            setCategories(uniqueCategories);
-        } catch (error) {
-            console.log("Error to get categories from screen", error);
-        } finally {
-            setIsLoadingCategories(false);
-        }
+    useEffect(() => {
+        const fetchCategories = async () => {
+            if (!token) return;
+            setIsLoadingCategories(true);
+            try {
+                const data = await CategoryService.getCategory(token);
+                const categoryNames = Array.from(new Set(data.map((c) => c.name).filter(Boolean)));
+                const uniqueCategories = Array.from(new Set(["All categories", ...categoryNames, ...DEFAULT_CATEGORIES]));
+                setCategories(uniqueCategories);
+            } catch (error) {
+                console.log("Error to get categories from screen", error);
+            } finally {
+                setIsLoadingCategories(false);
+            }
+        };
+        fetchCategories();
     }, [token]);
-
-    useFocusEffect(
-        useCallback(() => {
-            fetchCategories();
-        }, [fetchCategories])
-    );
 
     const openMenu = () => {
         navigation.dispatch(DrawerActions.openDrawer());
@@ -184,9 +183,9 @@ export default function DashboardScreen() {
 
             {/**CATEGORIES**/}
             <View style={styles.categoriesWrapper}>
-                {isLoadingCategories ? (
+                {isLoadingCategories ?(
                     <ActivityIndicator color="#005C3A" size="small" />
-                ) : (
+                    ):(
                     <FlatList
                         data={categories}
                         horizontal
@@ -227,14 +226,14 @@ export default function DashboardScreen() {
                         <Ionicons name="bag-handle-outline" size={54} color="#9CA3AF" />
                         <Text style={styles.emptyTitle}>No hay productos</Text>
                         <Text style={styles.emptySubtitle}>
-                            {`No se encontraron productos en la categoría "${selectedCategory}".`}
+                            No se encontraron productos en la categoría "{selectedCategory}".
                         </Text>
                     </View>
                 }
-                renderItem={({ item }) => (
+                renderItem={({item}) => (
                     <View style={styles.cardContainer}>
                         <View style={styles.imageWrapper}>
-                            <Image source={{ uri: item.image }} style={styles.productImage} />
+                            <Image source={{uri:item.image}} style={styles.productImage}/>
                             {item.isNew && (
                                 <View style={styles.newBadge}>
                                     <Text style={styles.newBadgeText}>NEW</Text>
@@ -248,7 +247,7 @@ export default function DashboardScreen() {
                             <View style={styles.priceRow}>
                                 <Text>${item.price.toFixed(2)}</Text>
                                 <TouchableOpacity style={styles.cardBtn}>
-                                    <Ionicons name="cart-outline" size={16} color="#FFF" />
+                                    <Ionicons name="cart-outline" size={16} color="#FFF"/>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -335,76 +334,76 @@ const styles = StyleSheet.create({
         color: "#FFF"
     },
     /***ESTILOS PARA LAS TARJETAS */
-    productList: {
-        paddingHorizontal: 16,
-        paddingBottom: 24
+    productList:{
+        paddingHorizontal:16,
+        paddingBottom:24
     },
-    gridRowSpace: {
-        justifyContent: "space-between"
+    gridRowSpace:{
+        justifyContent:"space-between"
     },
-    cardContainer: {
-        width: CARD_WIDTH,
-        backgroundColor: "#FFF",
-        borderRadius: 16,
-        marginBottom: 16,
-        overflow: "hidden",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2
+    cardContainer:{
+        width:CARD_WIDTH,
+        backgroundColor:"#FFF",
+        borderRadius:16,
+        marginBottom:16,
+        overflow:"hidden",
+        shadowColor:"#000",
+        shadowOffset:{width:0,height:1},
+        shadowOpacity:0.05,
+        shadowRadius:5,
+        elevation:2
     },
-    imageWrapper: {
-        height: 140,
-        width: "100%",
-        backgroundColor: "#F3F4F6",
-        position: "relative"
+    imageWrapper:{
+        height:140,
+        width:"100%",
+        backgroundColor:"#F3F4F6",
+        position:"relative"
     },
-    productImage: {
-        width: "100%",
-        height: "100%",
-        resizeMode: "cover"
+    productImage:{
+        width:"100%",
+        height:"100%",
+        resizeMode:"cover"
     },
-    newBadge: {
-        position: "absolute",
-        top: 10,
-        left: 10,
-        backgroundColor: "#005C3A",
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
+    newBadge:{
+        position:"absolute",
+        top:10,
+        left:10,
+        backgroundColor:"#005C3A",
+        paddingHorizontal:8,
+        paddingVertical:4,
+        borderRadius:6,
     },
-    newBadgeText: {
-        color: "#FFF",
-        fontSize: 10,
-        fontWeight: "bold",
+    newBadgeText:{
+      color:"#FFF",
+      fontSize:10,
+      fontWeight:"bold",
     },
-    productInfo: {
+    productInfo:{
         padding: 12
     },
-    productTitle: {
-        fontSize: 14,
-        fontWeight: "bold",
+    productTitle:{
+        fontSize:14,
+        fontWeight:"bold",
         color: "#1F2937",
-        marginBottom: 2
+        marginBottom:2
     },
-    productDescription: {
-        fontSize: 11,
+    productDescription:{
+        fontSize:11,
         color: "#6B7280",
-        marginBottom: 8
+        marginBottom:8
     },
-    priceRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between"
+    priceRow:{
+        flexDirection:"row",
+        alignItems:"center",
+        justifyContent:"space-between"
     },
-    cardBtn: {
-        backgroundColor: "lightgreen",
-        width: 30,
-        height: 30,
-        justifyContent: "center",
-        borderRadius: 15,
-        alignItems: "center"
+    cardBtn:{
+        backgroundColor:"lightgreen",
+        width:30,
+        height:30,
+        justifyContent:"center",
+        borderRadius:15,
+        alignItems:"center"
     },
     emptyContainer: {
         alignItems: "center",
