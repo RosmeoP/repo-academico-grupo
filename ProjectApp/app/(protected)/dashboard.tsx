@@ -8,8 +8,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useDrawer } from "../src/Admin/viewmodels/use-drawer";
 import { CategoryService } from "../src/categories/services/category.service";
 import { useAuth } from "../src/context/AuthContext";
-import { ProductService, DashboardProduct } from "../src/products/services/product.service";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 44) / 2 //(Ancho total - margenes laterales)/2
@@ -109,89 +107,50 @@ export default function DashboardScreen() {
     const [searchQuery, setSearchQuery] = useState("");
     const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
     const [isLoadingCategories, setIsLoadingCategories] = useState(false);
-    const [customProducts, setCustomProducts] = useState<DashboardProduct[]>([]);
 
     const fetchCategories = useCallback(async () => {
+        if (!token) return;
         setIsLoadingCategories(true);
         try {
-            const data = await CategoryService.getCategory(token || "");
+            const data = await CategoryService.getCategory(token);
             const categoryNames = Array.from(new Set(data.map((c) => c.name).filter(Boolean)));
             const uniqueCategories = Array.from(new Set(["All categories", ...categoryNames, ...DEFAULT_CATEGORIES]));
             setCategories(uniqueCategories);
         } catch (error) {
             console.log("Error to get categories from screen", error);
-            try {
-                const stored = await AsyncStorage.getItem("@custom_categories");
-                if (stored) {
-                    const localCats = JSON.parse(stored);
-                    const localNames = localCats.map((c: any) => c.name).filter(Boolean);
-                    setCategories(Array.from(new Set(["All categories", ...localNames, ...DEFAULT_CATEGORIES])));
-                }
-            } catch (e) {
-                console.log("Fallback categories error:", e);
-            }
         } finally {
             setIsLoadingCategories(false);
         }
     }, [token]);
 
-    const fetchCustomProducts = useCallback(async () => {
-        try {
-            const items = await ProductService.getCustomProducts();
-            setCustomProducts(items);
-        } catch (error) {
-            console.log("Error to get custom products:", error);
-        }
-    }, []);
-
     useFocusEffect(
         useCallback(() => {
             fetchCategories();
-            fetchCustomProducts();
-        }, [fetchCategories, fetchCustomProducts])
+        }, [fetchCategories])
     );
 
     const openMenu = () => {
         navigation.dispatch(DrawerActions.openDrawer());
     };
 
-    const allProducts = useMemo(() => {
-        return [...customProducts, ...MOCK_PRODUCTS];
-    }, [customProducts]);
-
-    const normalizeStr = (str?: string) =>
-        (str || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .trim()
-            .toLowerCase();
-
-    // FILTRAR DINAMICAMENTE LOS PRODUCTOS SEGUN LA CATEGORIA Y BUSQUEDA
+    //FILTAR DINAMICAMENTE LOS PRODUCTOS SEGUN LA CATEGORIA
     const filteredProductsByCategory = useMemo(() => {
-        const selectedNorm = normalizeStr(selectedCategory);
-        const searchNorm = normalizeStr(searchQuery);
+        return MOCK_PRODUCTS.filter((product) => {
+            const isAll =
+                selectedCategory === "All categories" ||
+                selectedCategory === "All Products";
 
-        const isAll =
-            selectedNorm === "all categories" ||
-            selectedNorm === "all products" ||
-            selectedNorm === "";
+            const matchCategory =
+                isAll ||
+                product.category.trim().toLowerCase() === selectedCategory.trim().toLowerCase();
 
-        return allProducts.filter((product) => {
-            const productCategoryNorm = normalizeStr(product.category);
-
-            // Coincidencia con la categoría seleccionada
-            const matchCategory = isAll || productCategoryNorm === selectedNorm;
-
-            // Búsqueda dinámica por título, descripción O categoría
             const matchSearch =
-                !searchNorm ||
-                normalizeStr(product.title).includes(searchNorm) ||
-                normalizeStr(product.description).includes(searchNorm) ||
-                productCategoryNorm.includes(searchNorm);
+                product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchQuery.toLowerCase());
 
             return matchCategory && matchSearch;
         });
-    }, [allProducts, selectedCategory, searchQuery]);
+    }, [selectedCategory, searchQuery]);
     return (
         <SafeAreaView style={styles.container}>
             {/**Omitir el drawer por defecto */}
@@ -275,10 +234,7 @@ export default function DashboardScreen() {
                 renderItem={({ item }) => (
                     <View style={styles.cardContainer}>
                         <View style={styles.imageWrapper}>
-                            <Image
-                                source={{ uri: item.image || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop" }}
-                                style={styles.productImage}
-                            />
+                            <Image source={{ uri: item.image }} style={styles.productImage} />
                             {item.isNew && (
                                 <View style={styles.newBadge}>
                                     <Text style={styles.newBadgeText}>NEW</Text>
@@ -290,7 +246,7 @@ export default function DashboardScreen() {
                             <Text style={styles.productTitle}>{item.title}</Text>
                             <Text style={styles.productDescription}>{item.description}</Text>
                             <View style={styles.priceRow}>
-                                <Text>${Number(item.price || 0).toFixed(2)}</Text>
+                                <Text>${item.price.toFixed(2)}</Text>
                                 <TouchableOpacity style={styles.cardBtn}>
                                     <Ionicons name="cart-outline" size={16} color="#FFF" />
                                 </TouchableOpacity>
